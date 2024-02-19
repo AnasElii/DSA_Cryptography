@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <chrono>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/random/random_device.hpp>
 #include <boost/random/independent_bits.hpp>
@@ -12,69 +13,70 @@ using namespace boost::random;
 
 
 // Generating a random number
-// cpp_int generating_random_100_bits_integer(){
-//     random_device rd;
-//     independent_bits_engine<mt19937, 6805, cpp_int> gen(rd());
-//     return gen();
-// }
-
-// bool is_prime(const cpp_int &n){
-//     if(n <= 1){
-//         return false;
-//     }
-//     if(n <= 3){
-//         return true;
-//     }
-//     if(n % 2 == 0 || n % 3 == 0){
-//         return false;
-//     }
-//     for(cpp_int i = 5; i * i <= n; i = i + 6){
-//         if(n % i == 0 || n % (i + 2) == 0){
-//             return false;
-//         }
-//     }
-//     return true;
-// }
+cpp_int generating_random_2048_bits_integer(){
+    boost::random::random_device rd;
+    boost::random::independent_bits_engine< boost::random::mt19937, 6805, boost::multiprecision::cpp_int> gen(rd());
+    // boost::random::independent_bits_engine<boost::random::mt19937, 2048 / 32, cpp_int> gen(rd());
+    return gen();
+}
 
 bool is_prime(const cpp_int& n) {
-    return miller_rabin_test(n, 25); // Adjust the number of iterations as needed
+    
+    // if(n <= 1) return false;
+    // if(n <= 3) return true;
+    // if(n % 2 == 0) return false;
+    
+    // for(cpp_int i = 3; i * i <=n; i+=2){
+    //     if(n % i == 0) return false;
+    // }
+    // bool result = n / 2 == 0 ? true : false;
+    // return result;
+    return miller_rabin_test(n, 5); // Adjust the number of iterations as needed
 }
 
 
 int main(){
-    int n;
-    // cout << "Enter a number" << endl;
-    // cin >> n;
+    string genNumber = "";
+    int index = 0;
+    int sameNumber = 0;
 
-    // if(n >= 1){
-    //     n % 2 == 0 ? cout << "Not prime" : cout << "Prime\n";
-    // }
-    boost::random::random_device rd;
-    independent_bits_engine<mt19937, 100, cpp_int> gen(rd());
-    cout << gen() << endl;
+    auto start_time = chrono::high_resolution_clock::now();
 
-    // cpp_int candedate = generating_random_100_bits_integer();
-    // cout << "Generated Number: " << candedate << "\n Number Length: " << candedate.str().length() << endl;
-
-//    int nonce = 0;
-//    while(true){
-//        cpp_int candedate = generating_random_100_bits_integer();
-//        if(!is_prime(candedate)){
-//             cout << "Nonce: " << nonce << endl;
-//             nonce++;
-//             continue;   
-//         }
+    while(true){
+        boost::multiprecision::cpp_int candedate = generating_random_2048_bits_integer();
+        // cout << "Generated Number: " << candedate << "\n Number Length: " << candedate.str().length() << endl;
         
-//         cout << "Nonce: " << nonce << endl;
-//         cout << "Prime: " << candedate << endl;
-//         break;
+        if(sameNumber >= 10){
+            cout << "The number is the same as the previous one 10 times" << endl;
+            break;
+        }
 
-//    }
+        if(candedate.str().length() < 2048){
+            cout << "The number is not 2048 bits long" << endl;
+            continue;
+        }
+
+        if(genNumber == candedate.str()){
+            cout << "The number is the same as the previous one" << endl;
+            sameNumber++;
+            continue;
+        }
+
+        if (is_prime(candedate)){
+            cout << "The number is prime" << endl;
+            cout << "The number is: \n" << candedate << endl;
+            break;
+        } else {
+            auto current_time = chrono::high_resolution_clock::now();
+            auto elupsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();
+            cout << "Time: " << elupsed_time << "| The number " << index << " with length " << candedate.str().length() << " is not prime" << endl;
+            
+            genNumber = candedate.str();
+            candedate = 0;
+            index++;
+            continue;   
+        }
+    }
+
     return 0;
 }
-
-// P
-// 27609917172339383022350711843748160763540369353719821680895911657156395645376444554108157590203098522345448312572800098543463107048833326042379946529004743900873768403815236148268851687304645149604078398303265247884228758447160906982209269907994319811284822807311655020133871812795937132774137415998816564396786352321841873701982840551286760664924908980226987876005556175159752203280153251836802718164491139608124464069682190116593043833605246850149390349833471090654981922673823659798717454448963045554857831604690776454055911564594557538060114158447923994411560782699749199223269973625937312493424065176395889416101
-
-// Q
-// 15749856326764396990596796320634368940014372725240818555524247883959
