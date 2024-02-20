@@ -11,8 +11,8 @@ if(WIN32)
     set(Boost_INCLUDE_DIR "D:/CL/boost")
 elseif(APPLE)
     # ========= Set Boost Libraries
-    set(Boost_LIBRARY_DIR  "D:/CL/boost/stage/lib")
-    set(Boost_INCLUDE_DIR "D:/CL/boost")
+    set(Boost_LIBRARY_DIR  "/Users/aninoss/Documents/boost/testing/lib")
+    set(Boost_INCLUDE_DIR "/Users/aninoss/Documents/boost")
 endif()
 
 # ========= Set directories
@@ -33,7 +33,11 @@ file(GLOB_RECURSE SOURCES
 )
 
 # ========= Include libraries
-find_package(boost COMPONENTS random filesystem system REQUIRED)
+if(WIN32)
+    find_package(boost COMPONENTS random filesystem system REQUIRED)
+elseif(APPLE)
+    find_package(Boost COMPONENTS random filesystem system REQUIRED)
+endif()
 
 # ========= Add executable
 add_executable(${CMAKE_PROJECT_NAME}
@@ -59,11 +63,11 @@ if(WIN32)
         libboost_system-vc143-mt-x64-1_84
     )
 
-else()
+elseif(APPLE)
     target_link_libraries(${CMAKE_PROJECT_NAME}
-        ibboost_random
-        libboost_filesystem
-        libboost_system
+        Boost::random
+        Boost::filesystem
+        Boost::system
     )
 endif()
  
