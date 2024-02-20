@@ -5,9 +5,15 @@ project(DSA VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ========= Set Boost Libraries
-set(Boost_LIBRARY_DIR  "D:/CL/boost/stage/lib")
-set(Boost_INCLUDE_DIR "D:/CL/boost")
+if(WIN32)
+    # ========= Set Boost Libraries
+    set(Boost_LIBRARY_DIR  "D:/CL/boost/stage/lib")
+    set(Boost_INCLUDE_DIR "D:/CL/boost")
+elseif(APPLE)
+    # ========= Set Boost Libraries
+    set(Boost_LIBRARY_DIR  "D:/CL/boost/stage/lib")
+    set(Boost_INCLUDE_DIR "D:/CL/boost")
+endif()
 
 # ========= Set directories
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
