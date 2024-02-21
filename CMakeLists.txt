@@ -9,7 +9,6 @@ if(WIN32)
     # ========= Set Boost Libraries
     set(Boost_LIBRARY_DIR  $ENV{BOOST_LIB})
     set(Boost_INCLUDE_DIR $ENV{BOOST_INCLUDE})
-    find_package(Boost REQUIRED)
 elseif(APPLE)
     # ========= Set Boost Libraries
     set(Boost_LIBRARY_DIR  "/Users/aninoss/Documents/boost/testing/lib")
@@ -25,7 +24,6 @@ include_directories(${SOURCE_DIR})
 include_directories(${INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIR})
 
-
 # ========= Add directories files
 file(GLOB_RECURSE SOURCES
     "${SOURCE_DIR}/*.cpp"
@@ -33,11 +31,7 @@ file(GLOB_RECURSE SOURCES
 )
 
 # ========= Include libraries
-if(WIN32)
-    find_package(Boost COMPONENTS chrono REQUIRED)
-elseif(APPLE)
     find_package(Boost COMPONENTS random filesystem system REQUIRED)
-endif()
 
 # ========= Add executable
 add_executable(${CMAKE_PROJECT_NAME}
@@ -56,22 +50,21 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIR})
 
 
 # ========= Link libraries
-if(WIN32)
+# if(WIN32)
+
+    # target_link_libraries(${CMAKE_PROJECT_NAME}
+    #     Boost::random
+    #     Boost::filesystem
+    #     Boost::system
+    # )
+
+# elseif(APPLE)
 
     target_link_libraries(${CMAKE_PROJECT_NAME}
-        Boost::random
+        Boost::random   
         Boost::filesystem
         Boost::system
     )
 
-elseif(APPLE)
-
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-        Boost::chrono   
-    # Boost::random
-        # Boost::filesystem
-        # Boost::system
-    )
-
-endif()
+# endif()
  
