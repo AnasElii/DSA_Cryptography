@@ -48,23 +48,11 @@ target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC src)
 target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC include)
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIR})
 
-
 # ========= Link libraries
-# if(WIN32)
+target_link_libraries(${CMAKE_PROJECT_NAME}
+    Boost::random   
+    Boost::filesystem
+    Boost::system
+)
 
-    # target_link_libraries(${CMAKE_PROJECT_NAME}
-    #     Boost::random
-    #     Boost::filesystem
-    #     Boost::system
-    # )
-
-# elseif(APPLE)
-
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-        Boost::random   
-        Boost::filesystem
-        Boost::system
-    )
-
-# endif()
  
