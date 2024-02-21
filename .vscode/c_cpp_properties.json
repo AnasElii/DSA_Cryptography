@@ -20,7 +20,7 @@
             "includePath":[
                 "${workspaceFolder}/**",
                 "${env:ProgramFiles(x86)}/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.39.33519/include",
-                "C:/Boost/include/boost-1_82"
+                "C:/Boost/include/boost-1_84"
             ],
             "defines": [],
             "windowsSdkVersion": "10.0.19041.0",

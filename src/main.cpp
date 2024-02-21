@@ -13,67 +13,98 @@ using namespace boost::random;
 
 
 // Generating a random number
-cpp_int generating_random_2048_bits_integer(){
+cpp_int generating_random_2048_bits(){
     boost::random::random_device rd;
-    boost::random::independent_bits_engine< boost::random::mt19937, 6805, boost::multiprecision::cpp_int> gen(rd());
-    // boost::random::independent_bits_engine<boost::random::mt19937, 2048 / 32, cpp_int> gen(rd());
+    boost::random::independent_bits_engine< boost::random::mt19937, 2048, boost::multiprecision::cpp_int> gen(rd());
     return gen();
 }
 
-bool is_prime(const cpp_int& n) {
-    
-    // if(n <= 1) return false;
-    // if(n <= 3) return true;
-    // if(n % 2 == 0) return false;
-    
-    // for(cpp_int i = 3; i * i <=n; i+=2){
-    //     if(n % i == 0) return false;
-    // }
-    // bool result = n / 2 == 0 ? true : false;
-    // return result;
-    return miller_rabin_test(n, 5); // Adjust the number of iterations as needed
+cpp_int generating_random_2048_bits_integer() {
+    return boost::multiprecision::cpp_int(generating_random_2048_bits());
 }
 
+cpp_int gen_random_number_224_bits() {
+    boost::random::random_device rd;
+    boost::random::independent_bits_engine< boost::random::mt19937, 224, boost::multiprecision::cpp_int> gen(rd());
+    return gen();
+}
+
+cpp_int generating_random_224_bits_integer() {
+    return boost::multiprecision::cpp_int(gen_random_number_224_bits());
+}
+
+bool is_prime(const cpp_int& n) {
+    return miller_rabin_test(n, 50);
+}
+
+bool check_divisibility(cpp_int candedate, cpp_int prime2) {
+    
+    int p2_bits = 0;
+    cpp_int temp = prime2;
+    while (temp > 0) {
+        temp = temp / 2;
+        p2_bits++;
+    }
+
+    cpp_int x = powm(candedate-1, (p2_bits - 1) / 2, prime2);
+
+    if (x != 1) {
+        cout << "prime2 is not a divisor!" << endl;
+        return false;
+    }
+
+
+    if (is_prime(prime2)) {
+        cout << "prime2 is a devidor and prime!" << endl;
+        return true;
+    }
+    else {
+        cout << "prime 2 is not a devidor or a prime" << endl;
+        return false;
+    }
+}
 
 int main(){
     string genNumber = "";
     int index = 0;
-    int sameNumber = 0;
 
     auto start_time = chrono::high_resolution_clock::now();
+    auto candedate = generating_random_2048_bits_integer();
+    auto prime2 = generating_random_224_bits_integer();
 
     while(true){
-        boost::multiprecision::cpp_int candedate = generating_random_2048_bits_integer();
-        // cout << "Generated Number: " << candedate << "\n Number Length: " << candedate.str().length() << endl;
-        
-        if(sameNumber >= 10){
-            cout << "The number is the same as the previous one 10 times" << endl;
-            break;
-        }
 
-        if(candedate.str().length() < 2048){
+       /* if(candedate.str().length() != 617){
             cout << "The number is not 2048 bits long" << endl;
             continue;
-        }
+        }*/
 
-        if(genNumber == candedate.str()){
-            cout << "The number is the same as the previous one" << endl;
-            sameNumber++;
-            continue;
-        }
+        auto current_time = chrono::high_resolution_clock::now();
+        auto elupsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();
 
         if (is_prime(candedate)){
-            cout << "The number is prime" << endl;
-            cout << "The number is: \n" << candedate << endl;
+            cout << "1th Prime Number found At " << elupsed_time << " | number is : \n" << candedate << endl;
+
+            while (true) {
+                prime2 = generating_random_224_bits_integer();
+
+                if (check_divisibility(candedate, prime2)) {                    
+                    break;
+                }
+            
+            }
+
+            cout << "1th Prime number: " << candedate << endl;
+            cout << "2th Prime number: " << prime2 << endl;
+
             break;
         } else {
-            auto current_time = chrono::high_resolution_clock::now();
-            auto elupsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();
             cout << "Time: " << elupsed_time << "| The number " << index << " with length " << candedate.str().length() << " is not prime" << endl;
             
             genNumber = candedate.str();
             candedate = 0;
             index++;
+            candedate = generating_random_2048_bits_integer();
             continue;   
         }
     }
