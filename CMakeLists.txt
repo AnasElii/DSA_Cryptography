@@ -5,7 +5,7 @@ project(DSA VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(WIN32)
+if(WIN32) 
     # ========= Set Boost Libraries
     set(Boost_LIBRARY_DIR  $ENV{BOOST_LIB})
     set(Boost_INCLUDE_DIR $ENV{BOOST_INCLUDE})
