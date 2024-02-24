@@ -1,6 +1,6 @@
 #include <iostream>
-#include <cmath>
 #include <chrono>
+#include <vector>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/random/random_device.hpp>
 #include <boost/random/independent_bits.hpp>
@@ -12,95 +12,154 @@ using namespace boost::multiprecision;
 using namespace boost::random;
 
 
-static const int PRIMALITY_TESTS = 50;  // Increase for stricter primality testing
+static const int PRIMALITY_TESTS = 25;  // Increase for stricter primality testing
 
 // Optimized generating_random_2048_bits function
-cpp_int generating_random_2048_bits() {
+cpp_int generating_random_2048_bits_integer() {
     boost::random::random_device rd;
     boost::random::independent_bits_engine<boost::random::mt19937, 2048, cpp_int> gen(rd());
-    cpp_int candidate = gen();
+    cpp_int prime_candidate = gen();
 
     // Ensure candidate is odd and has the desired number of bits
-    while (candidate % 2 == 0 || candidate.str().length() != 617) {
-        candidate = gen();
+    while (prime_candidate % 2 == 0 || prime_candidate.str().length() != 617) {
+        prime_candidate = gen();
     }
 
-    return candidate;
+    return prime_candidate;
 }
 
-cpp_int gen_random_number_224_bits() {
+cpp_int gen_random_number_224_bits_integer() {
     boost::random::random_device rd;
     boost::random::independent_bits_engine< boost::random::mt19937, 224, boost::multiprecision::cpp_int> gen(rd());
-    return gen();
-}
+    cpp_int divisor = gen();
 
-cpp_int generating_random_224_bits_integer() {
-    return boost::multiprecision::cpp_int(gen_random_number_224_bits());
+    // Ensure candidate is odd and has the desired number of bits
+    while (divisor % 2 == 0 || divisor.str().length() != 68) {
+        divisor = gen();
+    }
+
+    return divisor;
 }
 
 bool is_prime(const cpp_int& n) {
-    return miller_rabin_test(n, 50);
+    return miller_rabin_test(n, PRIMALITY_TESTS);
 }
 
 // Modified check_divisibility function for efficiency and error handling
-bool check_divisibility(const cpp_int& candidate, const cpp_int& prime2) {
-    if (prime2 <= 1) {
-        return false;  // Handle invalid divisor (not prime or <= 1)
-    }
+bool check_divisibility(const cpp_int& candidate, const cpp_int& divisor) {
+
+  // Perform modular exponentiation once and store the result
+  cpp_int x = powm(candidate - 1, (divisor - 1) / 2, divisor);
+
+  // Check divisibility based on x
+  if (x != 1 && x != divisor - 1) {
+    return false;
+  }
 
     int p2_bits = 0;
-    cpp_int temp = prime2;
+    cpp_int temp = divisor;
     while (temp > 0) {
         temp /= 2;
         p2_bits++;
     }
 
-    // Avoid redundant primality test for 2
-    if (prime2 == 2) {
-        return candidate % 2 != 0;
+  // Optimization for divisor 2
+  if (divisor == 2) {
+    return candidate % 2 != 0;
+  }
+
+  // Second Check with optimized exponentiation
+  cpp_int x2 = powm(candidate - 1, (p2_bits  - 1) / 2, divisor);
+
+  // Check divisibility based on x2
+  if (x2 != 1 && x2 != divisor - 1) {
+    return false;
+  }
+
+  // Divisible by divisor, no need to check primality
+  return true;
+}
+
+
+vector<cpp_int> divisors(){
+    
+    vector<cpp_int> divisors;
+
+    while(true){
+
+        cpp_int number = gen_random_number_224_bits_integer();
+
+    	if(is_prime(number))
+            divisors.push_back(number);
+
+        if (divisors.size() == 99)
+            break;
+
     }
 
-    // Use optimized modular exponentiation (powm in GMP instead of boost)
-    cpp_int x = powm(candidate - 1, (p2_bits - 1) / 2, prime2);
-    if (x != 1 && x != prime2 - 1) {
-        return false;  // Not divisible by prime2
-    }
-
-    // Verify primality of prime2 with stricter tests
-    for (int i = 0; i < PRIMALITY_TESTS; ++i) {
-        if (!miller_rabin_test(prime2, 50)) {
-            return false;  // prime2 is not prime
-        }
-    }
-
-    return true;  // candidate is divisible by prime2, and prime2 is prime
+    return divisors;
 }
 
 int main() {
-    auto start_time = chrono::high_resolution_clock::now();
+    // start the timer
+    std::chrono::steady_clock::time_point start_time, current_time;
+    long long elapsed_time;
+    start_time = chrono::high_resolution_clock::now();
+    
+    cpp_int candidate;
+    cpp_int divisor;
 
     while (true) {
-        auto candidate = generating_random_2048_bits();
-        auto current_time = chrono::high_resolution_clock::now();
-        auto elapsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();
+        // Generate a random 2048-bit integer
+        candidate = generating_random_2048_bits_integer();
+        
+        // calculate the time elapsed
+        current_time = chrono::high_resolution_clock::now();
+        elapsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();
+        string stringPrime2 = "";
 
+        // Check if the candidate is prime
         if (is_prime(candidate)) {
-            cout << "Found prime number at " << elapsed_time << " seconds:" << endl;
-            cout << candidate << endl;
-
-            for (int i = 3; i < candidate / 2; i += 2) {
-                // Optimized loop by checking divisibility efficiently
-                if (check_divisibility(candidate, i)) {
-                    cout << "Divisor (prime): " << i << endl;
-                    break;  // Found a divisor, exit loop
-                }
-            }
-
-            break;  // Found both primes, exit loop
+            // Print the prime number and the time elapsed
+            cout << "Found prime number at " << elapsed_time << " seconds" << endl;
+            _sleep(1000);
+            break;
         } else {
             cout << elapsed_time << " seconds: Not prime, checking next..." << endl;
         }
     }
+
+    unsigned int i = 0;
+    vector<cpp_int> divisorList;
+
+    // Find the first prime divisor
+    while (true) {
+
+        if (i == 99) {
+            i = 0;
+            divisors();
+        }
+
+        // calculate the time elapsed
+        current_time = chrono::high_resolution_clock::now();
+        elapsed_time = chrono::duration_cast<chrono::seconds>(current_time - start_time).count();        
+
+        if(i == 0)
+            divisorList = divisors();
+
+        // Optimized loop by checking divisibility efficiently
+        if (check_divisibility(candidate, divisorList[i])) {
+            cout << "Divisor (prime) Found at " << elapsed_time << " seconds" << endl;
+            break;
+        }
+        else
+            cout << elapsed_time << " seconds: Not prime or divisor(" << divisor << "), checking next..." << endl;
+        
+        i++;
+    }
+    cout << "Found prime number at " << elapsed_time << " seconds:" << endl;
+    cout << "Prime Number" << candidate << endl;
+    cout << "Divisor (prime):" << divisor << endl;
 
     return 0;
 }
